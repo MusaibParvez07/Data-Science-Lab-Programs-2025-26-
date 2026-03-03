@@ -1,0 +1,62 @@
+// Program2 For EDA on Auto mpg dataset.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+
+df = pd.read_csv(r"C:\Users\hp\Downloads\mpg_raw.csv")
+
+print(df.shape)
+print(df.info())
+print(df.describe())
+
+df.replace(['na','NA'], np.nan, inplace=True)
+print(df.isnull().sum())
+
+df.dropna(inplace=True)
+print(df.isnull().sum())
+
+plt.figure(figsize=(8,5))
+sns.histplot(df['mpg'], bins=20, kde=True)
+plt.title("Histogram of MPG")
+plt.show()
+
+plt.figure(figsize=(8,5))
+sns.histplot(df['horsepower'], bins=20, kde=True)
+plt.title("Histogram of Horsepower")
+plt.show()
+
+plt.figure(figsize=(8,5))
+sns.violinplot(data=df, x="cylinders", y="mpg")
+plt.title("Violin Plot of Mpg vs Cylinders")
+plt.show()
+
+plt.figure(figsize=(8,5))
+sns.boxplot(data=df, x="horsepower")
+plt.title("Boxplot Before Outlier Treatment")
+plt.show()
+
+Q1 = df['horsepower'].quantile(0.25)
+Q3 = df['horsepower'].quantile(0.75)
+IQR = Q3 - Q1
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+df = df[(df['horsepower'] >= lower_bound) & (df['horsepower'] <= upper_bound)]
+
+plt.figure(figsize=(8,5))
+sns.boxplot(data=df, x="horsepower")
+plt.title("Boxplot After Outlier Treatment")
+plt.show()
+
+plt.figure(figsize=(8,5))
+corr_matrix = df.select_dtypes(include=np.number).corr()
+sns.heatmap(corr_matrix, annot=True)
+plt.title("Correlation Heatmap")
+plt.show()
+
+scaler = StandardScaler()
+continuous_vars = ['mpg', 'displacement', 'horsepower', 'weight', 'acceleration']
+df[continuous_vars] = scaler.fit_transform(df[continuous_vars])
+print(df.head())
