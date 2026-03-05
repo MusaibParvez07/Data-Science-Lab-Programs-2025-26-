@@ -1,0 +1,30 @@
+// Apriori Algorithm on Market Basket dataset
+
+import numpy as np
+import pandas as pd
+from mlxtend.frequent_patterns import apriori,association_rules
+
+df = pd.read_csv(r"C:\Users\hp\Downloads\basket.csv")
+
+df.shape
+
+df.info()
+
+df.head()
+
+df.describe()
+
+print(df.isnull().sum())
+
+df.fillna('',inplace=True)
+df.isnull().sum()
+
+df_dum=pd.get_dummies(df)
+print(df_dum.head())
+
+frequent_items=apriori(df_dum,min_support=0.01,use_colnames=True)
+print(frequent_items)
+
+rules = association_rules(frequent_items,metric="confidence",min_threshold=0.01)
+rules = rules.sort_values(by=["support", "confidence"],ascending=[False, False])
+print(rules)
