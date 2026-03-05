@@ -1,0 +1,65 @@
+// Naive Bayes Algorithm on Placement dataset
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder,StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix,accuracy_score,precision_score,classification_report,recall_score,f1_score
+
+df = pd.read_csv(r"C:\Users\hp\Downloads\Placement_Data.csv")
+
+print(df.shape)
+
+print(df.head())
+
+print(df.info())
+
+df.isnull().sum()
+
+df=df.drop(["sl_no", "gender", "salary"], axis=1)
+
+Placed=df[df.status=='Placed']
+NPlaced=df[df.status=='Not Placed']
+
+y=df.status.values
+X=df[['ssc_p','hsc_p','degree_p','etest_p','mba_p']]
+
+label=LabelEncoder()
+y=label.fit_transform(y)
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+
+from sklearn.naive_bayes import GaussianNB
+gn=GaussianNB()
+gn.fit(X_train,y_train)
+
+print("Naive score with Gaussian",gn.score(X_test,y_test)*100)
+
+predictions=gn.predict(X_test)
+print("Confusion Matrix:", confusion_matrix(y_test, predictions))
+print("Accuracy:", accuracy_score(y_test, predictions))
+print("Precision:", precision_score(y_test, predictions))
+print("Recall:", recall_score(y_test, predictions))
+print("F1:", f1_score(y_test, predictions))
+
+from sklearn.naive_bayes import MultinomialNB
+ml=MultinomialNB()
+ml.fit(X_train,y_train)
+
+print("Naive score with MultinomialNB",ml.score(X_test,y_test)*100)
+
+predictions=ml.predict(X_test)
+print("Confusion Matrix:", confusion_matrix(y_test, predictions))
+print("Accuracy:", accuracy_score(y_test, predictions))
+print("Precision:", precision_score(y_test, predictions))
+print("Recall:", recall_score(y_test, predictions))
+print("F1:", f1_score(y_test, predictions))
+
+from sklearn.naive_bayes import BernoulliNB
+bi = BernoulliNB(binarize=0.0)
+bi.fit(X_train, y_train)
+predictions = bi.predict(X_test)
+print("Confusion Matrix:", confusion_matrix(y_test, predictions))
+print("Classification Report:\n", classification_report(y_test, predictions))
