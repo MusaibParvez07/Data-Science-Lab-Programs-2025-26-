@@ -1,0 +1,58 @@
+// Decision Tree Algorithm on Student Performance
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+
+df = pd.read_csv(r"C:\Users\hp\Downloads\student_performance_new.csv")
+
+df.head()
+
+df.columns
+
+print(df.isnull().sum())
+
+df.dropna(inplace=True)
+print(df.isnull().sum())
+
+df = df.drop(['Unnamed: 15'], axis=1)
+df.columns=df.columns.str.strip()
+
+y = df["Result"]
+X = df[["Test Result", "Quiz Result", "Assignment Result"]]
+
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+clf=DecisionTreeClassifier(criterion='gini',splitter='random',random_state=42,max_depth=4)
+
+clf.fit(X_train,y_train)
+predictions=clf.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test,predictions))
+print("Confusion Matrix:", confusion_matrix(y_test,predictions))
+print("Classification Report:", classification_report(y_test, predictions))
+
+plt.figure(figsize=(18,8))
+plot_tree(clf,feature_names=X.columns,class_names=['Fail','Pass'])
+
+importance = pd.DataFrame({
+    "Feature": X.columns,
+    "Importance": clf.feature_importances_
+}).sort_values(by="Importance", ascending=False)
+print("\nImportant Features:\n")
+print(importance)
+
+print("\n Enter Student Marks For Prediction")
+test_total = float(input("Enter Test Marks: "))
+quiz_total = float(input("Enter Quiz Marks: "))
+assignment_total = float(input("Enter Assignment Marks: "))
+user_input = [[test_total, quiz_total, assignment_total]]
+prediction = clf.predict(user_input)
+
+if prediction[0]==1:
+    print("\n Pass")
+else:
+    print("\n Fail")
